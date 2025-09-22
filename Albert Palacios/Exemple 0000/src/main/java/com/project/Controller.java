@@ -5,153 +5,87 @@ import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import javafx.event.ActionEvent;
 
+
 public class Controller {
 
     @FXML
-    private Button unoButton;
-    private Button dosButton;
-    private Button tresButton;
-    private Button cuatroButton;
-    private Button cincoButton;
-    private Button seisButton;
-    private Button sieteButton;
-    private Button ochoButton;
-    private Button nueveButton;
-    private Button ceroButton;
-    private Button sumButton;
-    private Button restButton;
-    private Button multiButton;
-    private Button diviButton;
-    private Button equalButton;
-    private Button clearButton;
-    private Button comaButton;
+    private Text display;
 
-
+    private double num1 = 0;
+    private String operator = "";
+    private boolean startNew = true;
 
     @FXML
-    private Text displayText; // Agrega esto para mostrar el número en la interfaz
+    private void actionNumber(ActionEvent event) {
+        String value = ((Button) event.getSource()).getText();
 
-    private StringBuilder currentInput = new StringBuilder();
-
-    @FXML
-    private void actionUno(ActionEvent event) {
-        currentInput.append("1");
-        updateDisplay();
-    }
-
-    @FXML
-    private void actionDos(ActionEvent event) {
-        currentInput.append("2");
-        updateDisplay();
-    }
-
-    @FXML
-    private void actionTres(ActionEvent event) {
-        currentInput.append("3");
-        updateDisplay();
-    }
-
-    @FXML
-    private void actionCuatro(ActionEvent event) {
-        currentInput.append("4");
-        updateDisplay();
-    }
-
-    @FXML
-    private void actionCinco(ActionEvent event) {
-        currentInput.append("5");
-        updateDisplay();
-    }
-
-    @FXML
-    private void actionSeis(ActionEvent event) {
-        currentInput.append("6");
-        updateDisplay();
-    }
-
-    @FXML
-    private void actionSiete(ActionEvent event) {
-        currentInput.append("7");
-        updateDisplay();
-    }
-
-    @FXML
-    private void actionOcho(ActionEvent event) {
-        currentInput.append("8");
-        updateDisplay();
-    }
-
-    @FXML
-    private void actionNueve(ActionEvent event) {
-        currentInput.append("9");
-        updateDisplay();
-    }
-
-    @FXML
-    private void actionCero(ActionEvent event) {
-        currentInput.append("0");
-        updateDisplay();
-    }
-
-    private void updateDisplay() {
-        if (displayText != null) {
-            displayText.setText(currentInput.toString());
-        }
-    }
-
-    private double obtenerNumeroActual() {
-        try {
-            return Double.parseDouble(currentInput.toString());
-        } catch (NumberFormatException e) {
-            return 0;
+        if (startNew || display.getText().equals("0")) {
+            display.setText(value);
+            startNew = false;
+        } else {
+            display.setText(display.getText() + value);
         }
     }
 
     @FXML
-    private void actionSum(ActionEvent event) {
-        // Lógica para el botón "+"
-        double primerNumero = obtenerNumeroActual();
-        String operacion = "+";
-        // Luego, cuando se presione "=", realizar la operación
-        equalButton.setOnAction(e -> {
-            double segundoNumero = obtenerNumeroActual();
-            double resultado = 0;
-            switch (operacion) {
-                case "+":
-                    resultado = primerNumero + segundoNumero;
-                    break;
-                // Agrega más casos para otras operaciones
-            }
-            System.out.println("Resultado: " + resultado);
-        });
+    private void actionDot() {
+        if (startNew) {
+            display.setText("0.");
+            startNew = false;
+        } else if (!display.getText().contains(".")) {
+            display.setText(display.getText() + ".");
+        }
     }
 
     @FXML
-    private void actionRest(ActionEvent event) {
-        // Lógica para el botón "-"
-        // Aquí puedes agregar la lógica para la resta
-        double primerNumero = obtenerNumeroActual();
-        String operacion = "-";
-        equalButton.setOnAction(e -> {
-            double segundoNumero = obtenerNumeroActual();
-            double resultado = 0;
-            switch (operacion) {
-                case "-":
-                    resultado = primerNumero - segundoNumero;
-                    break;
-                case "*":
-                    resultado = primerNumero * segundoNumero;
-                    break;
-                case "/":
-                    if (segundoNumero != 0) {
-                        resultado = primerNumero / segundoNumero;
-                    } else {
-                        System.out.println("Error: Has dividido por cero");
-                    }
-                    break;
-
-            }
-        });
+    private void actionClear() {
+        display.setText("0");
+        num1 = 0;
+        operator = "";
+        startNew = true;
     }
 
+    @FXML
+    private void actionAdd() {
+        setOperator("+");
+    }
+
+    @FXML
+    private void actionSubtract() {
+        setOperator("-");
+    }
+
+    @FXML
+    private void actionMultiply() {
+        setOperator("*");
+    }
+
+    @FXML
+    private void actionDivide() {
+        setOperator("/");
+    }
+
+    private void setOperator(String op) {
+        num1 = Double.parseDouble(display.getText());
+        operator = op;
+        startNew = true;
+    }
+
+    @FXML
+    private void actionEquals() {
+        if (operator.isEmpty()) return;
+
+        double num2 = Double.parseDouble(display.getText());
+        double result = switch (operator) {
+            case "+" -> num1 + num2;
+            case "-" -> num1 - num2;
+            case "*" -> num1 * num2;
+            case "/" -> (num2 == 0) ? 0 : num1 / num2;
+            default -> 0;
+        };
+
+        display.setText((result % 1 == 0) ? String.valueOf((int) result) : String.valueOf(result));
+        startNew = true;
+        operator = "";
+    }
 }
