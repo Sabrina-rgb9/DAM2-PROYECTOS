@@ -16,7 +16,7 @@ public class Main {
             .thenApply(dades -> {
                 System.out.println("Processant dades...");
                 // Simulem un càlcul (ex: afegim una comissió)
-                int importInicial = Integer.parseInt(dades.replaceAll("[^0-9]", ""));
+                int importInicial = Integer.parseInt(dades.split(": ")[2]);
                 int comissio = 176;
                 int resultat = importInicial - comissio;
                 return "Usuari: Albert, Import final: " + resultat;

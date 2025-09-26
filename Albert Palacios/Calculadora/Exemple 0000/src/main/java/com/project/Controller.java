@@ -5,7 +5,6 @@ import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import javafx.event.ActionEvent;
 
-
 public class Controller {
 
     @FXML
@@ -13,15 +12,15 @@ public class Controller {
     
     private double num1 = 0;
     private String operator = "";
-    private boolean startNew = true;
+    private boolean nuevoNum = true;
 
     @FXML
     private void actionNumber(ActionEvent event) {
         String value = ((Button) event.getSource()).getText();
 
-        if (startNew || display.getText().equals("0")) {
+        if (nuevoNum || display.getText().equals("0")) {
             display.setText(value);
-            startNew = false;
+            nuevoNum = false;
         } else {
             display.setText(display.getText() + value);
         }
@@ -29,9 +28,9 @@ public class Controller {
 
     @FXML
     private void actionDot() {
-        if (startNew) {
+        if (nuevoNum) {
             display.setText("0.");
-            startNew = false;
+            nuevoNum = false;
         } else if (!display.getText().contains(".")) {
             display.setText(display.getText() + ".");
         }
@@ -42,7 +41,7 @@ public class Controller {
         display.setText("0");
         num1 = 0;
         operator = "";
-        startNew = true;
+        nuevoNum = true;
     }
 
     @FXML
@@ -66,9 +65,24 @@ public class Controller {
     }
 
     private void setOperator(String op) {
-        num1 = Double.parseDouble(display.getText());
+        double current = Double.parseDouble(display.getText());
+
+        if (!operator.isEmpty()) {
+            double result = switch (operator) {
+                case "+" -> num1 + current;
+                case "-" -> num1 - current;
+                case "*" -> num1 * current;
+                case "/" -> (current == 0) ? 0 : num1 / current;
+                default -> current;
+            };
+            num1 = result;
+            display.setText((result % 1 == 0) ? String.valueOf((int) result) : String.valueOf(result));
+        } else {
+            num1 = current;
+        }
+
         operator = op;
-        startNew = true;
+        nuevoNum = true;
     }
 
     @FXML
@@ -81,11 +95,12 @@ public class Controller {
             case "-" -> num1 - num2;
             case "*" -> num1 * num2;
             case "/" -> (num2 == 0) ? 0 : num1 / num2;
-            default -> 0;
+            default -> num2;
         };
 
         display.setText((result % 1 == 0) ? String.valueOf((int) result) : String.valueOf(result));
-        startNew = true;
+        nuevoNum = true;
         operator = "";
+        num1 = result;
     }
 }
