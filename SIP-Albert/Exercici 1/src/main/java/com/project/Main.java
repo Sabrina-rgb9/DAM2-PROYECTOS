@@ -1,24 +1,45 @@
 package com.project;
 
-import com.project.TaskInicialitzacio;
-import com.project.TaskModificacio;
-import main.java.com.project.TaskConsultaFinal;
+import java.util.concurrent.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        ExecutorService executor = Executors.newFixedThreadPool(3);
+        // Estructura concurrent per compartir dades
         ConcurrentHashMap<String, Double> compte = new ConcurrentHashMap<>();
 
-        executor.execute(new TaskInicialitzacio(compte));
-        executor.execute(new TaskModificacio(compte));
-        Future<Double> resultat = executor.submit(new TaskConsultaFinal(compte));
+        // Una tasca (Runnable) que introdueixi les dades inicials, simulant la recepció d'una operació bancària.
+        Runnable inicialitzador = () -> {
+            System.out.println("Recepció operació bancària: saldo inicial 1000€");
+                
+            compte.put("saldo", 1000.0);
+        };
 
-        System.out.println("Resultat final per al client: " + resultat.get());
+        // Una altra tasca (Runnable) que modifiqui aquestes dades, simulant una operació de càlcul d'interessos o comissions.
+        Runnable modificador = () -> {
+            compte.put("saldo", compte.get("saldo") + 365); // Suma 365€ al saldo
+            System.out.println("Saldo modificat: " + compte.get("saldo") + "€");
+        };
+
+        // Una tercera tasca (Callable) que llegeixi les dades modificades i retorni un resultat final, com ara el saldo actualitzat.
+        Callable<Double> lector = () -> {
+            try { Thread.sleep(800); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            Double saldoFinal = compte.get("saldo");
+            return saldoFinal;
+        };
+
+        // Executor amb pool de 3 fils
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        // Executa les tasques
+        executor.submit(inicialitzador);
+        executor.submit(modificador);
+        Future<Double> resultat = executor.submit(lector);
+
+        // Mostra el resultat final
+        System.out.println("Resultat final presentat al client: " + resultat.get() + "€");
+
+        // Tanca l'executor
         executor.shutdown();
     }
 }

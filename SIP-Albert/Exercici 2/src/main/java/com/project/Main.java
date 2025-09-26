@@ -4,26 +4,30 @@ import java.util.concurrent.CompletableFuture;
 
 public class Main {
     public static void main(String[] args) {
-        CompletableFuture<Void> cadena = CompletableFuture // 
+        CompletableFuture<Void> process = CompletableFuture
+            // 1. Validació de les dades (simulada)
             .supplyAsync(() -> {
                 System.out.println("Validant dades de la sol·licitud...");
-                try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
-                String dadesValidades = "Dades valides: user1";
-                System.out.println("Validacio completada.");
-                return dadesValidades;
+                int importeAlbert = 638;
+                // Simulem una validació i retornem un valor inicial
+                return "Usuari: Albert, import: " + importeAlbert;
             })
+            // 2. Processament de les dades
             .thenApply(dades -> {
                 System.out.println("Processant dades...");
-                try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
-                String resultat = dades + " | Resultat: Positius";
-                System.out.println("Processament completat.");
-                return resultat;
+                // Simulem un càlcul (ex: afegim una comissió)
+                int importInicial = Integer.parseInt(dades.replaceAll("[^0-9]", ""));
+                int comissio = 176;
+                int resultat = importInicial - comissio;
+                return "Usuari: Albert, Import final: " + resultat;
             })
-            .thenAccept(resultatFinal -> {
-                System.out.println("Resposta enviada a l'usuari:");
-                System.out.println(resultatFinal);
+            // 3. Mostrar la resposta final
+            .thenAccept(resultat -> {
+                System.out.println("Resposta final a l'usuari:");
+                System.out.println(resultat);
             });
 
-        cadena.join();
+        // Esperem que totes les operacions asíncrones acabin
+        process.join();
     }
 }

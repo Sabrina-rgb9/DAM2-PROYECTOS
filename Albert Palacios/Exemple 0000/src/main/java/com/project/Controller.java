@@ -10,7 +10,7 @@ public class Controller {
 
     @FXML
     private Text display;
-
+    
     private double num1 = 0;
     private String operator = "";
     private boolean startNew = true;
